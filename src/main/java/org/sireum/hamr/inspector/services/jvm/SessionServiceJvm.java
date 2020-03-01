@@ -1,6 +1,7 @@
 package org.sireum.hamr.inspector.services.jvm;
 
 import org.jetbrains.annotations.NotNull;
+import org.sireum.hamr.inspector.capabilities.jvm.JvmProjectListener;
 import org.sireum.hamr.inspector.services.Session;
 import org.sireum.hamr.inspector.services.SessionService;
 import org.sireum.hamr.inspector.services.SessionStatus;
@@ -10,6 +11,8 @@ import reactor.core.publisher.GroupedFlux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoProcessor;
 
+import javax.annotation.PostConstruct;
+
 import static org.sireum.hamr.inspector.services.jvm.ServiceUtils.JVM_SESSION;
 import static org.sireum.hamr.inspector.services.jvm.ServiceUtils.SESSIONS;
 
@@ -18,6 +21,11 @@ public class SessionServiceJvm implements SessionService {
 
     private static final MonoProcessor<Long> startProcessor = MonoProcessor.create();
     private static final MonoProcessor<Long> stopProcessor = MonoProcessor.create();
+
+    @PostConstruct
+    private void postConstruct() {
+        JvmProjectListener.serviceCountDownLatch().countDown();
+    }
 
     public static void setStart(long startTime) {
         startProcessor.onNext(startTime);

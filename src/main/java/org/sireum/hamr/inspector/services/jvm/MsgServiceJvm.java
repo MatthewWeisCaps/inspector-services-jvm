@@ -4,6 +4,7 @@ import art.Bridge;
 import art.DataContent;
 import art.UPort;
 import org.jetbrains.annotations.NotNull;
+import org.sireum.hamr.inspector.capabilities.jvm.JvmProjectListener;
 import org.sireum.hamr.inspector.common.ArtUtils;
 import org.sireum.hamr.inspector.common.Msg;
 import org.sireum.hamr.inspector.services.MsgService;
@@ -11,6 +12,7 @@ import org.sireum.hamr.inspector.services.Session;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.*;
 
+import javax.annotation.PostConstruct;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Component
@@ -22,6 +24,11 @@ public class MsgServiceJvm implements MsgService {
     private static final FluxSink<Msg> msgSink = msgProcessor.sink(FluxSink.OverflowStrategy.BUFFER);
 
     private static volatile ArtUtils artUtils;
+
+    @PostConstruct
+    private void postConstruct() {
+        JvmProjectListener.serviceCountDownLatch().countDown();
+    }
 
     public MsgServiceJvm(ArtUtils artUtils) {
         MsgServiceJvm.artUtils = artUtils;

@@ -2,22 +2,20 @@ package org.sireum.hamr.inspector.services.jvm;
 
 import art.ArtDebug;
 import org.jetbrains.annotations.NotNull;
+import org.sireum.hamr.inspector.capabilities.jvm.JvmProjectListener;
 import org.sireum.hamr.inspector.common.Injection;
-import org.sireum.hamr.inspector.common.InspectionBlueprint;
 import org.sireum.hamr.inspector.services.InjectionService;
 import org.sireum.hamr.inspector.services.Session;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.FluxSink;
+
+import javax.annotation.PostConstruct;
 
 @Component
 public class InjectionServiceJvm implements InjectionService {
 
-    public static FluxSink<String> hi;
-
-    private final InspectionBlueprint inspectionBlueprint;
-
-    public InjectionServiceJvm(InspectionBlueprint inspectionBlueprint) {
-        this.inspectionBlueprint = inspectionBlueprint;
+    @PostConstruct
+    private void postConstruct() {
+        JvmProjectListener.serviceCountDownLatch().countDown();
     }
 
     @Override
