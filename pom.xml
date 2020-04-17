@@ -7,12 +7,12 @@
     <parent>
         <groupId>com.github.MatthewWeisCaps</groupId>
         <artifactId>inspector-bom</artifactId>
-        <version>0.2-SNAPSHOT</version>
+        <version>0.4-SNAPSHOT</version>
     </parent>
 
     <groupId>org.sireum.hamr.inspector</groupId>
     <artifactId>inspector-services-jvm</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.4-SNAPSHOT</version>
     <name>inspector-services-jvm</name>
     <description>Inspector-services implementation for running inspector + hamr on same jvm</description>
 
@@ -51,16 +51,16 @@
             <artifactId>inspector-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.MatthewWeisCaps</groupId>
-            <artifactId>inspector-gui</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
         </dependency>
     </dependencies>
 
@@ -106,6 +106,18 @@
                             <source>${java.version}</source>
                             <target>${java.version}</target>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

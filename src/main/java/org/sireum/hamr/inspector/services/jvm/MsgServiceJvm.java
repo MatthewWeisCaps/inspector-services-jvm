@@ -1,3 +1,28 @@
+/*
+ * Copyright (c) 2020, Matthew Weis, Kansas State University
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package org.sireum.hamr.inspector.services.jvm;
 
 import art.Bridge;
@@ -20,8 +45,14 @@ public class MsgServiceJvm implements MsgService {
 
     private static AtomicLong msgCounter = new AtomicLong();
 
-    private static final FluxProcessor<Msg, Msg> msgProcessor = ReplayProcessor.create();
-    private static final FluxSink<Msg> msgSink = msgProcessor.sink(FluxSink.OverflowStrategy.BUFFER);
+    private static final Flux<Msg> msgFlux;
+    private static final FluxSink<Msg> msgSink;
+
+    static {
+        final FluxProcessor<Msg, Msg> msgProcessor = ReplayProcessor.create();
+        msgSink = msgProcessor.sink(FluxSink.OverflowStrategy.BUFFER);
+        msgFlux = msgProcessor.takeUntilOther(SessionServiceJvm.stopProcessor.then());
+    }
 
     private static volatile ArtUtils artUtils;
 
@@ -45,17 +76,17 @@ public class MsgServiceJvm implements MsgService {
 
     @Override
     public @NotNull Flux<Msg> replayThenLive(@NotNull Session session) {
-        return msgProcessor;
+        return msgFlux;
     }
 
     @Override
     public @NotNull Flux<Msg> replay(@NotNull Session session) {
-        return msgProcessor.take(msgCounter.longValue());
+        return msgFlux.take(msgCounter.longValue());
     }
 
     @Override
     public @NotNull Flux<Msg> live(@NotNull Session session) {
-        return msgProcessor.skip(msgCounter.longValue());
+        return msgFlux.skip(msgCounter.longValue());
     }
 
     @Override
