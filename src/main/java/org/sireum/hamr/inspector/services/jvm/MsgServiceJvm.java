@@ -33,7 +33,9 @@ import org.sireum.hamr.inspector.capabilities.jvm.JvmProjectListener;
 import org.sireum.hamr.inspector.common.ArtUtils;
 import org.sireum.hamr.inspector.common.Msg;
 import org.sireum.hamr.inspector.services.MsgService;
+import org.sireum.hamr.inspector.services.RecordId;
 import org.sireum.hamr.inspector.services.Session;
+import org.springframework.data.domain.Range;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.*;
 
@@ -75,23 +77,25 @@ public class MsgServiceJvm implements MsgService {
     }
 
     @Override
-    public @NotNull Flux<Msg> replayThenLive(@NotNull Session session) {
+    public @NotNull Mono<Long> count(@NotNull Session session) {
+        return Mono.just(msgCounter.longValue());
+    }
+
+    // todo mock range on jvm - currently just returns all for jvm impl
+
+    @Override
+    public @NotNull Flux<Msg> live(@NotNull Session session, @NotNull Range<RecordId> range) {
         return msgFlux;
     }
 
     @Override
-    public @NotNull Flux<Msg> replay(@NotNull Session session) {
+    public @NotNull Flux<Msg> replay(@NotNull Session session, @NotNull Range<RecordId> range) {
         return msgFlux.take(msgCounter.longValue());
     }
 
     @Override
-    public @NotNull Flux<Msg> live(@NotNull Session session) {
-        return msgFlux.skip(msgCounter.longValue());
-    }
-
-    @Override
-    public @NotNull Mono<Long> count(@NotNull Session session) {
-        return Mono.just(msgCounter.longValue());
+    public @NotNull Flux<Msg> replayReverse(@NotNull Session session, @NotNull Range<RecordId> range) {
+         throw new UnsupportedOperationException("todo for jvm");
     }
 
 }
