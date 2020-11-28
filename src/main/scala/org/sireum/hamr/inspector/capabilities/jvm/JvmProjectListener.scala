@@ -47,8 +47,10 @@ object JvmProjectListener {
   // value vs the thread-safe (but slower) atomicStartTime
   private def deltaTime(time: Time): Long = {
     if (startTime != -1L) {
+      // fast path
       time.toLong - startTime
     } else {
+      // slow synchronized path
       time.toLong - atomicStartTime.get()
     }
   }
